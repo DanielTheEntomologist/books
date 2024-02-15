@@ -6,6 +6,7 @@
       wrapper: '.books-panel',
       bookList: '.books-list',
       cover: '.book__image',
+      image: '.book__image img',
     },
     filters: '.filters',
   };
@@ -15,49 +16,114 @@
     ),
   };
 
-  const renderBooks = function (books) {
-    const bookList = document.querySelector(select.book.bookList);
-
-    for (let book of books) {
-      const generatedHTML = templates.book(book);
-      const bookElement = utils.createDOMFromHTML(generatedHTML);
-      bookList.appendChild(bookElement);
+  class Book {
+    constructor(data, bookListElement) {
+      const thisBook = this;
+      thisBook.id = data.id;
+      thisBook.name = data.name;
+      thisBook.price = data.price;
+      thisBook.rating = data.rating;
+      thisBook.image = data.image;
+      thisBook.details = data.details;
+      thisBook.favorite = false;
+      thisBook.filters = [];
+      thisBook.dom = {};
+      thisBook.render(bookListElement);
+      thisBook.getElements();
     }
-  };
 
-  const toggleFavoriteBook = function (bookElement) {
-    // get book id from data-id attribute
-    const id = bookElement.getAttribute('data-id');
-    if (bookElement.classList.contains('favorite')) {
-      bookElement.classList.remove('favorite');
-      const index = favoriteBooks.indexOf(id);
-      favoriteBooks.splice(index, 1);
-    } else {
-      bookElement.classList.add('favorite');
-      favoriteBooks.push(id);
+    render(bookListElement) {
+      const thisBook = this;
+      const generatedHTML = templates.book(thisBook);
+      thisBook.dom.element = utils.createDOMFromHTML(generatedHTML);
+      bookListElement.appendChild(thisBook.dom.element);
     }
-  };
+    getElements() {
+      const thisBook = this;
+      thisBook.dom.cover = thisBook.dom.element.querySelector(
+        select.book.cover
+      );
+      thisBook.dom.image = thisBook.dom.cover.querySelector(select.book.image);
+    }
 
-  const initActions = function () {
-    // add event listener to book list wrapper
-    const bookList = document.querySelector(select.book.wrapper);
-    bookList.addEventListener('dblclick', function (event) {
-      event.preventDefault();
-      const clickedElement = event.target.offsetParent;
-      if (clickedElement.classList.contains('book__image')) {
-        toggleFavoriteBook(clickedElement);
+    toogleFavorite() {
+      const thisBook = this;
+      thisBook.favorite = !thisBook.favorite;
+      if (thisBook.favorite) {
+        thisBook.dom.cover.classList.add('favorite');
+      } else {
+        thisBook.dom.cover.classList.remove('favorite');
       }
-    });
-  };
+    }
+  }
 
-  const favoriteBooks = [];
+  class BookList {
+    constructor() {
+      const thisBookList = this;
+      thisBookList.favoriteBooks = [];
 
-  const app = {
-    init: function () {
-      renderBooks(dataSource.books);
-      initActions();
-    },
-  };
+      thisBookList.getElements();
 
-  app.init();
+      thisBookList.createBooks();
+
+      thisBookList.findFavorites();
+
+      //   this.render();
+      thisBookList.initActions();
+    }
+    getElements() {
+      const thisBookList = this;
+      thisBookList.dom = {};
+      thisBookList.dom.wrapper = document.querySelector(select.book.wrapper);
+      thisBookList.dom.bookList = thisBookList.dom.wrapper.querySelector(
+        select.book.bookList
+      );
+      thisBookList.dom.filters = thisBookList.dom.wrapper.querySelector(
+        select.filters
+      );
+    }
+
+    createBooks() {
+      const thisBookList = this;
+      thisBookList.data = dataSource.books;
+      thisBookList.books = {};
+      for (let bookData of thisBookList.data) {
+        const bookId = bookData.id;
+        thisBookList.books[bookId] = new Book(
+          bookData,
+          thisBookList.dom.bookList
+        );
+      }
+    }
+    initActions() {
+      const thisBookList = this;
+      thisBookList.dom.bookList.addEventListener('dblclick', function (event) {
+        event.preventDefault();
+        const clickedElement = event.target.offsetParent;
+        if (clickedElement.classList.contains('book__image')) {
+          thisBookList.toogleFavoriteBook(clickedElement);
+        }
+        thisBookList.findFavorites();
+      });
+    }
+    toogleFavoriteBook(bookElement) {
+      const thisBookList = this;
+      // get book id from data-id attribute
+      const id = bookElement.getAttribute('data-id');
+      thisBookList.books[id].toogleFavorite();
+    }
+    findFavorites() {
+      const thisBookList = this;
+
+      thisBookList.favoriteBooks = [];
+      for (let bookId in thisBookList.books) {
+        const book = thisBookList.books[bookId];
+        if (book.favorite) {
+          thisBookList.favoriteBooks.push(book.id);
+        }
+      }
+    }
+  }
+
+  const app = new BookList();
 }
