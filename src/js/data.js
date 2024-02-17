@@ -28,7 +28,7 @@ dataSource.books = [
     name: 'Eloquent Javascript',
     image: 'images/books/3.jpg',
     price: 20,
-    rating: 7.8,
+    rating: 2.8,
     details: {
       adults: false,
       nonFiction: true,

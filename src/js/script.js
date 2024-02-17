@@ -7,6 +7,8 @@
       bookList: '.books-list',
       cover: '.book__image',
       image: '.book__image img',
+      rating: '.book__rating',
+      ratingFill: '.book__rating__fill',
     },
     filters: { wrapper: '.filters', filters: '.filters input' },
   };
@@ -29,7 +31,6 @@
       thisBook.filters = [];
       thisBook.dom = {};
       thisBook.render(bookListElement);
-      thisBook.getElements();
     }
 
     render(bookListElement) {
@@ -37,13 +38,38 @@
       const generatedHTML = templates.book(thisBook);
       thisBook.dom.element = utils.createDOMFromHTML(generatedHTML);
       bookListElement.appendChild(thisBook.dom.element);
+      thisBook.getElements();
+      thisBook.styleRating(thisBook.rating);
     }
+
+    styleRating(ratingScore) {
+      const thisBook = this;
+      console.log(ratingScore);
+      console.log(thisBook.dom);
+      thisBook.dom.ratingFill.style.width = ratingScore * 10 + '%';
+      if (ratingScore < 6) {
+        thisBook.dom.ratingFill.classList.add('book__rating__poor_rating');
+      } else if (ratingScore > 6 && ratingScore <= 8) {
+        thisBook.dom.ratingFill.classList.add('book__rating__average_rating');
+      } else if (ratingScore > 8 && ratingScore <= 9) {
+        thisBook.dom.ratingFill.classList.add('book__rating__good_rating');
+      } else if (ratingScore > 9 && ratingScore <= 10) {
+        thisBook.dom.ratingFill.classList.add('book__rating__excellent_rating');
+      }
+    }
+
     getElements() {
       const thisBook = this;
       thisBook.dom.cover = thisBook.dom.element.querySelector(
         select.book.cover
       );
       thisBook.dom.image = thisBook.dom.cover.querySelector(select.book.image);
+      thisBook.dom.rating = thisBook.dom.element.querySelector(
+        select.book.rating
+      );
+      thisBook.dom.ratingFill = thisBook.dom.element.querySelector(
+        select.book.ratingFill
+      );
     }
 
     toogleFavorite() {
@@ -90,7 +116,7 @@
       thisBookList.dom.filtersWrapper = document.querySelector(
         select.filters.wrapper
       );
-      console.log(thisBookList.dom.filtersWrapper);
+      // console.log(thisBookList.dom.filtersWrapper);
       thisBookList.dom.filters = thisBookList.dom.filtersWrapper.querySelector(
         select.filters.filters
       );
@@ -146,7 +172,7 @@
     setFilters(filter, checked) {
       const thisBookList = this;
       thisBookList.filters[filter] = checked;
-      console.log(thisBookList.filters);
+      // console.log(thisBookList.filters);
     }
 
     filterBooks() {
@@ -158,7 +184,7 @@
       );
 
       if (allFalse) {
-        console.log('All filters are false, showing all books');
+        // console.log('All filters are false, showing all books');
         for (let bookId in thisBookList.books) {
           const book = thisBookList.books[bookId];
           book.show();
@@ -172,11 +198,14 @@
         for (let filter in thisBookList.filters) {
           if (book.details[filter] !== thisBookList.filters[filter]) {
             book.hide();
+            break;
           }
+          book.show();
         }
       }
     }
   }
 
   const app = new BookList();
+  console.log(app);
 }

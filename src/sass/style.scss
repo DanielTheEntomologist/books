@@ -75,5 +75,21 @@ figure {
     &__fill {
       width: 100%;
     }
+
+    &__poor_rating {
+      background: linear-gradient(to bottom, #fefcea 0%, #f1da36 100%);
+    }
+
+    &__average_rating {
+      background: linear-gradient(to bottom, #b4df5b 0%, #b4df5b 100%);
+    }
+
+    &__good_rating {
+      background: linear-gradient(to bottom, #299a0b 0%, #299a0b 100%);
+    }
+
+    &__excellent_rating {
+      background: linear-gradient(to bottom, #299a0b 0%, #299a0b 100%);
+    }
   }
 }
